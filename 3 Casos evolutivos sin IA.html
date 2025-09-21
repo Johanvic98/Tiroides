@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curso Interactivo de Preparación ATLS</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-slate-50">
+
+    <div id="app-container" class="relative min-h-screen lg:flex">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="fixed inset-y-0 left-0 bg-slate-900 text-slate-300 w-80 p-6 flex flex-col transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out z-30 shadow-2xl">
+            <div class="flex-1 overflow-y-auto min-h-0 pr-2">
+                <h2 class="text-2xl font-bold text-center text-sky-400 border-b border-slate-700 pb-4 mb-6">Módulos ATLS</h2>
+                <ul id="module-list" class="space-y-2"></ul>
+            </div>
+            <button id="reset-button" class="w-full bg-red-600/90 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition-all hover:bg-red-600 active:scale-95 mt-4 flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7V9a1 1 0 01-2 0V3a1 1 0 011-1zm12 1a1 1 0 011 1v3.099A5.002 5.002 0 008.113 14.666 1 1 0 016.228 14A7.002 7.002 0 0115.898 7.534V5a1 1 0 011-1z" clip-rule="evenodd" /></svg>
+                Reiniciar Progreso
+            </button>
+        </aside>
+
+        <!-- Main Content -->
+        <main id="main-content" class="flex-1 lg:ml-80 p-4 sm:p-6 lg:p-8 transition-all duration-300">
+            <!-- Hamburger button for mobile -->
+            <button id="menu-toggle" class="lg:hidden fixed top-4 right-4 bg-white p-2 rounded-full shadow-lg z-40 text-slate-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                </svg>
+            </button>
+
+            <div id="progress-container" class="w-full bg-slate-200 rounded-full mb-8 shadow-inner">
+                <div id="progress-bar" class="bg-sky-500 text-xs font-medium text-white text-center p-1.5 leading-none rounded-full transition-all duration-500" style="width: 0%">0%</div>
+            </div>
+            <div id="module-display" class="transition-opacity duration-300">
+                <!-- El contenido del módulo se insertará aquí -->
+            </div>
+        </main>
+        
+        <div id="sidebar-overlay" class="hidden lg:hidden fixed inset-0 bg-black bg-opacity-60 z-20"></div>
+
+    </div>
+    
+    <!-- Reset Modal -->
+    <div id="reset-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4 transition-opacity duration-300">
+        <div class="bg-white rounded-xl shadow-2xl p-8 max-w-sm w-full text-center transform scale-95 transition-transform duration-300">
+            <h3 class="text-xl font-bold text-slate-800">Confirmar Acción</h3>
+            <p class="text-slate-600 my-4">¿Estás seguro de que quieres borrar todo tu progreso? Esta acción no se puede deshacer.</p>
+            <div class="flex justify-center gap-4 mt-6">
+                <button id="cancel-reset" class="py-2 px-6 bg-slate-200 text-slate-800 font-semibold rounded-lg hover:bg-slate-300 transition-colors">Cancelar</button>
+                <button id="confirm-reset" class="py-2 px-6 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const courseModules = [
+            {
+                id: 1,
+                title: "Capítulo 1: Amputación Traumática en MCI",
+                type: 'evolutive',
+                summary: "Evalúa la priorización y técnica correcta del uso de torniquetes en un escenario de múltiples víctimas con recursos limitados, y el manejo de sus complicaciones.",
+                stages: [
+                    {
+                        clinicalCase: "Respondes a un llamado de un accidente industrial con múltiples heridos. Tu primer paciente es un hombre de 30 años con una amputación traumática de la pierna derecha por debajo de la rodilla. La sangre brota activamente del muñón.\n\n**Signos Vitales Iniciales:** Paciente agitado, pálido. FC 135 lpm, TA no medible, FR 30 rpm.",
+                        quiz: [{ 
+                            type: 'mcq', 
+                            question: "De acuerdo con el protocolo xABCDE, ¿cuál es su primera acción inmediata e indispensable?", 
+                            options: ["Abrir la vía aérea del paciente.", "Aplicar un torniquete de extremidad lo más alto y apretado posible en la pierna lesionada.", "Comenzar compresiones torácicas.", "Administrar oxígeno a alto flujo."], 
+                            answer: 1, 
+                            justification: "El principio de xABCDE dicta que el control de la hemorragia externa exsanguinante es la primera prioridad, incluso antes de la evaluación de la vía aérea, ya que es la amenaza más inmediata para la vida.", 
+                            source: "(Capítulo 3, ATLS 11th Ed.)"
+                        }]
+                    },
+                    {
+                        update: "Aplicas un torniquete comercial 5-8 cm por encima de la amputación, directamente sobre la piel. Giras el molinete hasta que la hemorragia se detiene.",
+                        quiz: [{
+                             type: 'mcq', 
+                             question: "¿Cuál es el método definitivo para confirmar que el torniquete está aplicado correctamente y es efectivo?", 
+                             options: ["El paciente se queja de dolor intenso en el sitio.", "La hemorragia visible se ha detenido y no hay pulso palpable distal (si aplica).", "El color de la extremidad se vuelve pálido.", "El molinete ya no puede girar más."], 
+                             answer: 1, 
+                             justification: "La efectividad del torniquete se confirma por el cese de la hemorragia y la ausencia de pulso distal. El dolor es esperado pero no es un indicador de efectividad.", 
+                             source: "(Capítulo 3, ATLS 11th Ed.)"
+                        }]
+                    },
+                    {
+                        update: "Has controlado la hemorragia. Anotas la hora de aplicación en el torniquete. El transporte al hospital se retrasa debido a la cantidad de víctimas. Han pasado 2.5 horas desde la aplicación.",
+                        quiz: [{
+                            type: 'mcq', 
+                            question: "Con un tiempo de aplicación de torniquete superior a 2 horas, ¿cuál es la principal preocupación y el riesgo más significativo para el paciente?", 
+                             options: ["Infección de la herida.", "Daño por isquemia neuromuscular irreversible y rabdomiólisis.", "Pérdida del torniquete durante el transporte.", "Desarrollo de un coágulo de sangre debajo del torniquete."], 
+                             answer: 1, 
+                             justification: "Aunque los torniquetes son salvavidas, su aplicación prolongada (>2 horas) aumenta dramáticamente el riesgo de isquemia severa, daño permanente a nervios y músculos, y complicaciones sistémicas como la rabdomiólisis al liberarse.", 
+                             source: "(Capítulo 3, ATLS 11th Ed.)"
+                        }]
+                    },
+                    {
+                        update: "El paciente llega al hospital. Está hemodinámicamente más estable tras la reanimación inicial. El equipo quirúrgico se prepara para llevarlo a quirófano.",
+                        quiz: [{
+                            type: 'mcq', 
+                            question: "El cirujano menciona la 'conversión del torniquete'. ¿Qué implica este procedimiento?", 
+                            options: ["Reemplazar el torniquete por uno nuevo cada 2 horas.", "Aflojar lentamente el torniquete para permitir algo de flujo sanguíneo.", "Retirar el torniquete y reemplazarlo con un vendaje hemostático o presión directa una vez que el paciente está estable y se puede evaluar la herida.", "Dejar el torniquete hasta que la extremidad sea amputada quirúrgicamente."], 
+                            answer: 2, 
+                            justification: "La conversión del torniquete es el proceso deliberado de cambiar un torniquete por otro método de control de hemorragia (como gasa hemostática y vendaje compresivo) una vez que se ha evaluado al paciente y se considera seguro hacerlo, para minimizar el tiempo de isquemia.", 
+                            source: "(Capítulo 14, ATLS 11th Ed.)"
+                        }]
+                    },
+                    {
+                        update: "Durante la cirugía, se realiza la regularización del muñón. El paciente se recupera satisfactoriamente.",
+                        quiz: [{
+                            type: 'mcq', 
+                            question: "Si el sangrado no se hubiera detenido con el primer torniquete, ¿cuál habría sido el paso correcto a seguir?", 
+                            options: ["Apretar más el primer torniquete.", "Colocar un segundo torniquete justo distal al primero.", "Colocar un segundo torniquete proximal (más arriba) al primero.", "Quitar el primero y volver a aplicarlo."], 
+                            answer: 2, 
+                            justification: "Si un torniquete no controla la hemorragia, se debe aplicar un segundo torniquete inmediatamente proximal al primero para aumentar la presión circunferencial y ocluir el flujo arterial.", 
+                            source: "(Capítulo 3, ATLS 11th Ed.)"
+                        }]
+                    }
+                ]
+            },
+            {
+                id: 2,
+                title: "Capítulo 2: Hemorragia Juncional en la Ingle",
+                type: 'evolutive',
+                summary: "Aborda el manejo complejo de una hemorragia en una zona juncional donde los torniquetes convencionales son ineficaces, enfatizando la técnica de empaquetamiento de heridas.",
+                stages: [
+                     {
+                        clinicalCase: "Una mujer de 20 años sufre una herida por arma blanca en la parte superior del muslo, en la unión con la pelvis (zona inguinal). La herida sangra a borbotones de color rojo brillante.\n\n**Signos Vitales Iniciales:** FC 120 lpm, TA 90/50 mmHg, FR 24 rpm.",
+                        quiz: [{ 
+                            type: 'mcq', 
+                            question: "Intentas aplicar presión directa sobre la herida, pero la sangre satura rápidamente las gasas. ¿Por qué un torniquete de extremidad estándar es probablemente ineficaz en este caso?", 
+                            options: ["Porque la presión arterial es demasiado baja.", "Porque la herida está en una 'zona juncional', demasiado proximal para una aplicación efectiva.", "Porque las heridas por arma blanca no responden a los torniquetes.", "Porque el hueso femoral interfiere con la compresión."], 
+                            answer: 1, 
+                            justification: "Las hemorragias juncionales (ingle, axila, cuello) son aquellas en las que la lesión es demasiado proximal en una extremidad para permitir la colocación de un torniquete.", 
+                            source: "(Capítulo 3, ATLS 11th Ed.)"
+                        }]
+                    },
+                    {
+                        update: "Al reconocer que un torniquete no es una opción, decides empaquetar la herida.",
+                        quiz: [{
+                             type: 'mcq', 
+                             question: "Cuál es la técnica correcta para el empaquetamiento de una herida profunda (wound packing)?", 
+                             options: ["Colocar suavemente una gran cantidad de gasa sobre la abertura.", "Introducir gasa sistemáticamente en la herida, llenando toda la cavidad hasta la fuente del sangrado, y luego aplicar presión directa y constante.", "Llenar la herida con un agente hemostático en polvo y luego aplicar presión.", "Sondear la herida con un dedo para localizar el vaso y pinzarlo."], 
+                             answer: 1, 
+                             justification: "El empaquetamiento efectivo requiere llenar metódicamente todo el espacio de la herida, idealmente con gasa hemostática, para crear un taponamiento directo sobre el vaso lesionado. La presión directa sostenida sobre el paquete es crucial.", 
+                             source: "(Capítulo 3, ATLS 11th Ed.)"
+                        }]
+                    },
+                    {
+                        update: "Logras controlar la hemorragia con un empaquetamiento apretado y presión manual constante. El paciente se estabiliza hemodinámicamente.",
+                        quiz: [{
+                            type: 'mcq', 
+                            question: "Este tipo de hemorragia se clasifica como:", 
+                             options: ["Hemorragia compresible.", "Hemorragia no compresible.", "Hemorragia venosa menor.", "Hemorragia capilar."], 
+                             answer: 0, 
+                             justification: "Aunque es difícil de controlar, la hemorragia de una extremidad o una zona juncional se considera 'compresible' porque es externa y susceptible de control mediante presión, empaquetamiento o torniquetes.", 
+                             source: "(Capítulo 3, ATLS 11th Ed.)"
+                        }]
+                    },
+                    {
+                        update: "El paciente es transportado a un centro de trauma. La presión sobre el empaquetamiento debe mantenerse durante todo el traslado.",
+                        quiz: [{
+                            type: 'mcq', 
+                            question: "Mientras mantienes la presión, notas que la sangre comienza a empapar el vendaje de nuevo. ¿Cuál es el paso correcto?", 
+                            options: ["Quitar todo el empaquetamiento y empezar de nuevo.", "Añadir más gasas encima del vendaje actual.", "No quitar el empaquetamiento inicial; reforzarlo y aplicar presión aún más fuerte.", "Cambiar a un torniquete a pesar de la ubicación."], 
+                            answer: 2, 
+                            justification: "Nunca se debe quitar un coágulo ya formado. Si el sangrado continúa, se debe aplicar más material de vendaje encima y aumentar la presión directa sobre el sitio.", 
+                            source: "(Capítulo 3, ATLS 11th Ed.)"
+                        }]
+                    },
+                    {
+                        update: "El paciente llega al quirófano, donde se realiza la exploración y reparación vascular con éxito.",
+                        quiz: [{
+                            type: 'mcq', 
+                            question: "¿Qué herramienta avanzada, aunque no siempre disponible, está diseñada específicamente para hemorragias juncionales como esta?", 
+                            options: ["Un torniquete de extremidad más ancho.", "Un dispositivo de compresión pélvica.", "Un torniquete juncional.", "Un catéter de Fogarty."], 
+                            answer: 2, 
+                            justification: "Los torniquetes juncionales son dispositivos diseñados para comprimir los vasos sanguíneos en la ingle o la axila contra la pelvis o la clavícula, respectivamente, pero su uso aún no está generalizado en el ámbito civil.", 
+                            source: "(Capítulo 3, ATLS 11th Ed.)"
+                        }]
+                    }
+                ]
+            },
+            {
+                id: 3,
+                title: "Capítulo 3: Hemorragia No Compresible",
+                type: 'evolutive',
+                summary: "Este caso desafiante explora la identificación y el manejo conceptual de la hemorragia no compresible, diferenciándola de la hemorragia externa y destacando la urgencia quirúrgica.",
+                stages: [
+                    {
+                        clinicalCase: "Un hombre de 45 años es apuñalado en el epigastrio. A su llegada, está pálido, taquicárdico (FC 125 lpm) e hipotenso (TA 80/40 mmHg). La herida externa es pequeña y no sangra activamente.\n\n**Signos Vitales Iniciales:** FC 125 lpm, TA 80/40 mmHg, FR 28 rpm.",
+                        quiz: [{
+                            type: 'mcq', question: "A pesar de la falta de sangrado externo significativo, el paciente está en shock profundo. ¿Cómo se clasifica esta hemorragia?", 
+                            options: ["Hemorragia compresible oculta", "Hemorragia no compresible", "Shock neurogénico", "Shock séptico"], 
+                            answer: 1, 
+                            justification: "La hemorragia dentro de las cavidades torácica, abdominal o pélvica se considera 'no compresible' porque no se puede controlar con métodos externos. Es una indicación de cirugía inmediata.", 
+                            source: "(Capítulo 3, ATLS 11th Ed.)"
+                        }]
+                    },
+                    {
+                        update: "Se realiza un eFAST que muestra una gran cantidad de líquido libre en el abdomen y líquido en el saco pericárdico.",
+                        quiz: [{
+                             type: 'mcq', question: "Tu enfoque xABCDE te llevó a identificar y controlar una pequeña hemorragia externa primero. Ahora, ¿cuál es la intervención que salvará la vida de este paciente?", 
+                             options: ["Administración masiva de cristaloides", "Aplicación de un vendaje compresivo abdominal", "Laparotomía y/o toracotomía exploradora urgente", "Colocación de un tubo torácico"], 
+                             answer: 2, 
+                             justification: "El único tratamiento definitivo para la hemorragia no compresible en el torso es la intervención quirúrgica para encontrar y controlar la fuente del sangrado.", 
+                             source: "(Capítulo 3, ATLS 11th Ed.)"
+                        }]
+                    },
+                    {
+                        update: "El paciente es llevado a quirófano. Se encuentra una lesión cardíaca y una laceración hepática, que se controlan.",
+                        quiz: [{
+                            type: 'mcq', question: "¿Por qué la administración de grandes volúmenes de cristaloides (hipotensión permisiva) antes del control quirúrgico puede ser perjudicial?", 
+                            options: ["Porque diluye los factores de coagulación y 'revienta el coágulo'", "Porque sobrecarga los riñones", "Porque causa edema cerebral", "Porque interfiere con la anestesia"], 
+                            answer: 0, 
+                            justification: "La reanimación agresiva con líquidos antes de que se controle la hemorragia puede aumentar la presión arterial, desalojar los coágulos formados, diluir los factores de coagulación y empeorar la hemorragia y la coagulopatía.", 
+                            source: "(Capítulo 3, ATLS 11th Ed.)"
+                        }]
+                    },
+                    {
+                        update: "El paciente sobrevive. Se discute el caso y se refuerza la diferencia entre hemorragia compresible y no compresible.",
+                        quiz: [{
+                            type: 'mcq', question: "Un torniquete es una herramienta para la hemorragia...", 
+                            options: ["Compresible de una extremidad", "No compresible del tórax", "Compresible del cuero cabelludo", "No compresible del abdomen"], 
+                            answer: 0, 
+                            justification: "Los torniquetes son exclusivamente para hemorragias compresibles de las extremidades. Su uso es inapropiado e ineficaz para hemorragias de las cavidades corporales.", 
+                            source: "(Capítulo 3, ATLS 11th Ed.)"
+                        }]
+                    },
+                    {
+                        update: "La rápida identificación de que se trataba de una hemorragia no compresible que requería cirugía inmediata fue clave para la supervivencia del paciente.",
+                        quiz: [{
+                            type: 'mcq', question: "Dispositivos como el REBOA (Resuscitative Endovascular Balloon Occlusion of the Aorta) son una medida temporal para convertir una hemorragia no compresible... ", 
+                            options: ["...en una hemorragia externa.", "...en una hemorragia controlada proximalmente, ganando tiempo para la cirugía.", "...en una hemorragia venosa.", "...en una hemorragia que no requiere cirugía."], 
+                            answer: 1, 
+                            justification: "El REBOA es una técnica avanzada que ocluye la aorta internamente para controlar temporalmente la hemorragia no compresible infradiafragmática, actuando como un 'torniquete interno' para facilitar la reanimación y el traslado a quirófano.", 
+                            source: "(Capítulo 3, ATLS 11th Ed.)"
+                        }]
+                    }
+                ]
+            },
+            {
+                id: 4,
+                title: "Capítulo 4: Laceración del Cuero Cabelludo",
+                type: 'evolutive',
+                summary: "Este caso se enfoca en el manejo de la hemorragia del cuero cabelludo, una herida compresible pero no apta para torniquete que a menudo se subestima y puede conducir a un shock hemorrágico significativo.",
+                stages: [
+                     {
+                        clinicalCase: "Un hombre de 65 años, que toma anticoagulantes (warfarina), sufre una caída y presenta una laceración estrellada de 10 cm en el cuero cabelludo. La herida sangra profusamente, empapando varias toallas.\n\n**Signos Vitales Iniciales:** FC 115 lpm, TA 100/65 mmHg, FR 20 rpm.",
+                        quiz: [{ 
+                            type: 'mcq', question: "¿Por qué las laceraciones del cuero cabelludo tienden a sangrar de forma tan profusa y persistente?", 
+                            options: ["Porque los vasos sanguíneos del cuero cabelludo son excepcionalmente grandes.", "Porque los vasos están adheridos al tejido fibroso (galea) y no pueden contraerse eficazmente para formar un coágulo.", "Porque la presión arterial en la cabeza es más alta.", "Porque el pelo impide la coagulación."], 
+                            answer: 1, 
+                            justification: "El cuero cabelludo es extremadamente vascular. Sus vasos sanguíneos atraviesan una capa de tejido conectivo denso que los mantiene abiertos cuando se cortan, impidiendo el vasoespasmo natural que ayuda a detener el sangrado en otras partes del cuerpo.", 
+                            source: "(Capítulo 3, ATLS 11th Ed.)"
+                        }]
+                    },
+                    {
+                        update: "Intentas aplicar un vendaje compresivo sobre la herida, pero la sangre sigue manando por los lados.",
+                        quiz: [{
+                             type: 'mcq', question: "Dado que un vendaje de presión simple no es suficiente, ¿cuál es el método más eficaz para lograr la hemostasia temporal en el servicio de urgencias?", 
+                             options: ["Aplicar un torniquete alrededor de la cabeza.", "Pinzar los bordes de la herida con pinzas hemostáticas grandes.", "Infiltrar la herida con un vasoconstrictor como la epinefrina.", "Aplicar presión digital directa sobre los bordes de la herida o cerrarla temporalmente con suturas o grapas."], 
+                             answer: 3, 
+                             justification: "El control directo se logra aplicando presión en los bordes de la herida contra el cráneo. La hemostasia definitiva en urgencias se consigue a menudo con un cierre rápido (grapas o suturas) que aproxima los bordes de la galea y la piel, comprimiendo los vasos sangrantes.", 
+                             source: "(Capítulo 3, ATLS 11th Ed.)"
+                        }]
+                    },
+                    {
+                        update: "Logras controlar la hemorragia con varias grapas quirúrgicas. El estado hemodinámico del paciente mejora.",
+                        quiz: [{
+                            type: 'mcq', question: "El hecho de que el paciente tome warfarina es un factor crítico. ¿Qué prueba de laboratorio es urgente y qué medida terapéutica debe considerarse?", 
+                            options: ["Hemograma / Transfusión de plaquetas.", "INR (Tiempo de Protrombina) / Reversión con Vitamina K y/o Complejo Protrombínico.", "Tiempos de coagulación / Administrar heparina.", "Nivel de alcohol en sangre / Hidratación IV."], 
+                            answer: 1, 
+                            justification: "Es imperativo conocer el nivel de anticoagulación (INR) del paciente. Un INR elevado en un paciente con sangrado activo requiere una reversión urgente para restaurar la capacidad de coagulación normal.", 
+                            source: "(Capítulo 3, ATLS 11th Ed.)"
+                        }]
+                    },
+                    {
+                        update: "El INR del paciente regresa elevado (4.5). Se inicia la reversión de la anticoagulación.",
+                        quiz: [{
+                            type: 'mcq', question: "Este caso ilustra que incluso una herida aparentemente 'menor' puede ser una amenaza para la vida si es una hemorragia...", 
+                            options: ["...interna.", "...arterial.", "...continua y no controlada, especialmente en pacientes con coagulopatía.", "...venosa."], 
+                            answer: 2, 
+                            justification: "El principio fundamental es que cualquier hemorragia, independientemente de su origen, si es continua y no se controla, puede llevar a la exsanguinación. Factores como la coagulopatía aceleran drásticamente este proceso.", 
+                            source: "(Capítulo 3, ATLS 11th Ed.)"
+                        }]
+                    },
+                    {
+                        update: "El paciente es ingresado para observación neurológica y manejo de su anticoagulación.",
+                        quiz: [{
+                            type: 'mcq', question: "Si la herida hubiera sido en el brazo, ¿qué la diferenciaría fundamentalmente de esta herida en el cuero cabelludo en términos de manejo inicial de la hemorragia?", 
+                            options: ["La del brazo sería menos dolorosa.", "La del brazo sería más fácil de limpiar.", "La del brazo sería susceptible de control con un torniquete si la presión directa falla.", "La del brazo tendría menos riesgo de infección."], 
+                            answer: 2, 
+                            justification: "La diferencia clave es la anatomía. Una hemorragia exsanguinante de una extremidad que no se controla con presión directa es una indicación clara para un torniquete, una opción que no existe para el cuero cabelludo.", 
+                            source: "(Capítulo 3, ATLS 11th Ed.)"
+                        }]
+                    }
+                ]
+            },
+            {
+                id: 5,
+                title: "Capítulo 5: Herida por Escopeta en Extremidad",
+                type: 'evolutive',
+                summary: "Este caso explora la toma de decisiones en una lesión compleja de extremidad con múltiples puntos de sangrado, evaluando cuándo el empaquetamiento es suficiente y cuándo un torniquete es la única opción.",
+                stages: [
+                     {
+                        clinicalCase: "Un cazador de 18 años es traído después de un disparo accidental de escopeta a corta distancia en la pantorrilla. Presenta una gran herida cavitada con múltiples perdigones, destrucción de tejido y varios puntos de sangrado, uno de los cuales es claramente pulsátil.\n\n**Signos Vitales Iniciales:** FC 110 lpm, TA 105/70 mmHg, FR 20 rpm.",
+                        quiz: [{ 
+                            type: 'mcq', question: "Ante una herida tan extensa con múltiples fuentes de sangrado, ¿cuál es su estrategia inicial de control de hemorragia?", 
+                            options: ["Ignorar los pequeños sangrados y enfocarse solo en el sangrado pulsátil.", "Aplicar un torniquete inmediatamente sin intentar otras medidas.", "Intentar empaquetar toda la herida y aplicar un vendaje compresivo grande.", "Aplicar presión directa sobre el punto de sangrado arterial mientras se evalúa la necesidad de un torniquete."], 
+                            answer: 3, 
+                            justification: "El abordaje escalonado sigue siendo válido. Se debe intentar la presión directa sobre el punto más crítico (arterial). Si esto falla o no es práctico debido a la naturaleza de la herida, se debe escalar rápidamente a un torniquete.", 
+                            source: "(Capítulo 3, ATLS 11th Ed.)"
+                        }]
+                    },
+                    {
+                        update: "La presión directa sobre el sangrado arterial es ineficaz debido a la destrucción masiva de tejido. La hemorragia continúa siendo significativa.",
+                        quiz: [{
+                             type: 'mcq', question: "Dado el fallo de la presión directa para controlar la hemorragia arterial, ¿cuál es el siguiente paso indicado?", 
+                             options: ["Continuar con la presión y esperar que se forme un coágulo.", "Aplicar un torniquete proximal a la herida.", "Llevar al paciente a radiología para evaluar fracturas.", "Irrigar la herida para una mejor visualización."], 
+                             answer: 1, 
+                             justification: "Cuando la presión directa falla en controlar una hemorragia exsanguinante de una extremidad, la indicación es aplicar un torniquete sin demora.", 
+                             source: "(Capítulo 3, ATLS 11th Ed.)"
+                        }]
+                    },
+                    {
+                        update: "Aplicas un torniquete en el muslo. El sangrado arterial principal se detiene, pero persiste un rezumo venoso significativo desde otros puntos de la herida.",
+                        quiz: [{
+                            type: 'mcq', question: "El torniquete ha ocluido el flujo arterial. ¿Cómo debe manejar el sangrado venoso residual?", 
+                             options: ["Aplicar un segundo torniquete más apretado.", "Ignorarlo, ya que el sangrado venoso no es peligroso.", "Empaquetar la herida y aplicar un vendaje compresivo, ahora que la hemorragia arterial está controlada.", "Aflojar ligeramente el torniquete."], 
+                             answer: 2, 
+                             justification: "El torniquete ha cumplido su función principal. El sangrado venoso o de vasos más pequeños se puede manejar eficazmente con empaquetamiento de la herida y un vendaje de presión, complementando la acción del torniquete.", 
+                             source: "(Capítulo 3, ATLS 11th Ed.)"
+                        }]
+                    },
+                    {
+                        update: "Con el torniquete y el vendaje compresivo, la hemorragia está completamente controlada. El paciente está hemodinámicamente estable.",
+                        quiz: [{
+                            type: 'mcq', question: "Se coloca al paciente en la sala de operaciones. El cirujano está listo para explorar la herida. ¿Cuándo se debe retirar el torniquete?", 
+                            options: ["Inmediatamente al llegar a la sala de operaciones.", "Solo después de que el cirujano haya expuesto la lesión vascular y esté preparado para controlarla directamente (proximal y distalmente).", "Después de 2 horas exactas, sin importar el estado de la cirugía.", "No se retira, se deja que se caiga solo."], 
+                            answer: 1, 
+                            justification: "El torniquete solo debe ser retirado por el equipo quirúrgico en un entorno controlado cuando estén listos para manejar la re-hemorragia, es decir, con control vascular proximal y distal ya establecido.", 
+                            source: "(Capítulo 3, ATLS 11th Ed.)"
+                        }]
+                    },
+                    {
+                        update: "La exploración quirúrgica revela una lesión en la arteria tibial posterior que se repara. Se realiza un extenso desbridamiento del tejido no viable.",
+                        quiz: [{
+                            type: 'mcq', question: "El uso exitoso del torniquete en este caso previno el shock hemorrágico. ¿Cuál fue el primer paso en la cadena de decisiones que llevó a este buen resultado?", 
+                            options: ["La administración rápida de analgésicos.", "La rápida identificación de que la presión directa era insuficiente y la decisión de escalar al siguiente nivel (torniquete).", "La obtención de radiografías antes de controlar el sangrado.", "La limpieza meticulosa de la herida en urgencias."], 
+                            answer: 1, 
+                            justification: "Reconocer el fracaso de una intervención y escalar rápidamente al siguiente paso en el algoritmo de control de hemorragias (Presión -> Empaquetamiento -> Torniquete) es una habilidad crítica que salva vidas.", 
+                            source: "(Capítulo 3, ATLS 11th Ed.)"
+                        }]
+                    }
+                ]
+            }
+        ]; 
+        let userProgress = {};
+        let currentModuleId = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProgress();
+            renderModuleList();
+            
+            let lastModuleId = null;
+            try {
+                lastModuleId = localStorage.getItem('atlsLastModuleId');
+            } catch (e) {
+                console.error("Error al obtener el último módulo:", e);
+            }
+            displayModule(lastModuleId ? parseInt(lastModuleId) : null);
+
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            const resetButton = document.getElementById('reset-button');
+            const resetModal = document.getElementById('reset-modal');
+            const cancelReset = document.getElementById('cancel-reset');
+            const confirmReset = document.getElementById('confirm-reset');
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+            const sidebarOverlay = document.getElementById('sidebar-overlay');
+            
+            resetButton.addEventListener('click', () => {
+                resetModal.classList.remove('hidden');
+                setTimeout(() => {
+                    resetModal.querySelector('div').classList.remove('scale-95');
+                }, 10);
+            });
+            cancelReset.addEventListener('click', () => {
+                resetModal.querySelector('div').classList.add('scale-95');
+                setTimeout(() => resetModal.classList.add('hidden'), 300);
+            });
+            confirmReset.addEventListener('click', resetProgress);
+            
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('-translate-x-full');
+                sidebarOverlay.classList.toggle('hidden');
+            });
+            sidebarOverlay.addEventListener('click', () => {
+                sidebar.classList.add('-translate-x-full');
+                sidebarOverlay.classList.add('hidden');
+            });
+        }
+        
+        function initializeProgress() {
+            userProgress = {};
+            courseModules.forEach(module => {
+                userProgress[module.id] = { completed: false, score: 0, answers: {}, currentStage: 0 };
+            });
+        }
+        
+        function loadProgress() {
+            try {
+                const savedProgress = localStorage.getItem('atlsCourseProgress');
+                if (savedProgress) { 
+                    const parsedProgress = JSON.parse(savedProgress);
+                    userProgress = parsedProgress;
+                    courseModules.forEach(module => {
+                        if (!userProgress[module.id]) {
+                            userProgress[module.id] = { completed: false, score: 0, answers: {}, currentStage: 0 };
+                        }
+                         // Reset path for evolutive modules if they exist from old logic
+                        if (userProgress[module.id].path) {
+                           delete userProgress[module.id].path;
+                        }
+                    });
+                } else {
+                    initializeProgress();
+                }
+            } catch (e) {
+                console.error("Error al cargar el progreso:", e);
+                initializeProgress();
+            }
+            updateProgressBar();
+        }
+
+        function saveProgress() {
+            try {
+                localStorage.setItem('atlsCourseProgress', JSON.stringify(userProgress));
+                if (currentModuleId) {
+                    localStorage.setItem('atlsLastModuleId', currentModuleId);
+                }
+            } catch (e) {
+                console.error("Error al guardar el progreso:", e);
+            }
+        }
+        
+        function resetProgress() {
+            try {
+                localStorage.removeItem('atlsCourseProgress');
+                localStorage.removeItem('atlsLastModuleId');
+            } catch (e) {
+                console.error("Error al reiniciar el progreso:", e);
+            }
+            window.location.reload();
+        }
+
+        function renderModuleList() {
+            const list = document.getElementById('module-list');
+            list.innerHTML = '';
+            courseModules.forEach(module => {
+                const li = document.createElement('li');
+                const isCompleted = userProgress[module.id] && userProgress[module.id].completed;
+                const isActive = module.id === currentModuleId;
+
+                const baseClasses = 'p-3 rounded-lg cursor-pointer transition-all duration-200 flex items-center gap-3';
+                let stateClasses = 'bg-slate-700 hover:bg-slate-600 hover:pl-4';
+                let iconHtml = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 opacity-70 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 16c1.255 0 2.443-.29 3.5-.804V4.804zM14.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 0114.5 16c1.255 0 2.443-.29 3.5-.804v-10A7.968 7.968 0 0014.5 4z" /></svg>`;
+                
+                if (isCompleted) {
+                    stateClasses = 'bg-emerald-800/80 hover:bg-emerald-700/80 text-emerald-300';
+                    iconHtml = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>`;
+                }
+                if (isActive) {
+                    stateClasses = 'bg-sky-600 font-bold text-white shadow-lg';
+                }
+                
+                li.className = `${baseClasses} ${stateClasses}`;
+                li.innerHTML = `${iconHtml} <span class="truncate">${module.id}: ${module.title.split(': ')[1] || module.title}</span>`;
+                li.dataset.moduleId = module.id;
+                li.onclick = () => {
+                    displayModule(module.id);
+                    if (window.innerWidth < 1024) {
+                        document.getElementById('sidebar').classList.add('-translate-x-full');
+                        document.getElementById('sidebar-overlay').classList.add('hidden');
+                    }
+                };
+                list.appendChild(li);
+            });
+        }
+        
+        function displayWelcomeScreen() {
+             const displayArea = document.getElementById('module-display');
+             const completedCount = Object.values(userProgress).filter(p => p.completed).length;
+             const totalCount = courseModules.length;
+             const firstUncompleted = courseModules.find(m => !userProgress[m.id].completed);
+             const buttonText = completedCount > 0 ? "Continuar Curso" : "Comenzar Curso";
+             const targetModuleId = firstUncompleted ? firstUncompleted.id : courseModules[0].id;
+            
+             displayArea.innerHTML = `
+                 <div class="bg-white p-8 sm:p-12 rounded-2xl shadow-xl text-center">
+                     <h2 class="text-3xl sm:text-4xl font-bold text-slate-800">Bienvenido al Curso de Preparación ATLS</h2>
+                     <p class="text-slate-600 mt-3 max-w-2xl mx-auto">Este curso interactivo está diseñado para evaluar y reforzar tus conocimientos sobre los principios del Soporte Vital Avanzado en Trauma.</p>
+                     <div class="mt-8">
+                         <p class="text-lg font-semibold text-slate-700">Tu Progreso:</p>
+                         <p class="text-4xl font-bold text-sky-600 mt-2">${completedCount} / ${totalCount} Módulos Completados</p>
+                     </div>
+                     <button class="mt-10 bg-sky-600 text-white font-semibold py-3 px-8 rounded-lg shadow-md transition-all hover:bg-sky-700 active:scale-95 text-lg" onclick="displayModule(${targetModuleId})">
+                         ${buttonText}
+                     </button>
+                 </div>
+             `;
+        }
+
+        function displayModule(moduleId) {
+            document.getElementById('main-content').scrollTop = 0;
+            const displayArea = document.getElementById('module-display');
+            displayArea.classList.add('opacity-0');
+
+            setTimeout(() => {
+                currentModuleId = moduleId ? parseInt(moduleId) : null;
+                
+                if (!currentModuleId) {
+                    displayWelcomeScreen();
+                    renderModuleList();
+                    displayArea.classList.remove('opacity-0');
+                    return;
+                }
+            
+                const moduleData = courseModules.find(m => m.id === currentModuleId);
+                
+                localStorage.setItem('atlsLastModuleId', currentModuleId);
+                
+                if (userProgress[currentModuleId] && userProgress[currentModuleId].completed) {
+                    showCompletedModule(currentModuleId);
+                } else {
+                    showActiveModule(currentModuleId);
+                }
+
+                renderModuleList();
+                displayArea.classList.remove('opacity-0');
+            }, 200);
+        }
+
+        function showActiveModule(moduleId) {
+            const moduleData = courseModules.find(m => m.id === moduleId);
+            const progressData = userProgress[moduleId];
+            const displayArea = document.getElementById('module-display');
+            
+            let clinicalInfoHtml = '';
+            let quiz, buttonText;
+            let quizSectionHtml = '';
+
+            if (moduleData.type === 'evolutive') {
+                const currentStageIndex = progressData.currentStage || 0;
+                const currentStage = moduleData.stages[currentStageIndex];
+                
+                clinicalInfoHtml += `<h3 class="text-xl font-bold text-slate-800 mb-3">Caso Clínico (Etapa ${currentStageIndex + 1}/${moduleData.stages.length})</h3>`;
+
+                if (currentStage.clinicalCase) {
+                    clinicalInfoHtml += `<div class="case-study bg-amber-50 border-l-4 border-amber-500 p-5 rounded-r-lg text-amber-900 space-y-2 mb-4">${currentStage.clinicalCase.replace(/\n/g, '<br>')}</div>`;
+                }
+                if (currentStage.update) {
+                    clinicalInfoHtml += `<div class="case-study bg-sky-50 border-l-4 border-sky-500 p-5 rounded-r-lg text-sky-900 space-y-2 mb-4"><strong>Actualización:</strong> ${currentStage.update}</div>`;
+                }
+
+                quiz = currentStage.quiz;
+                buttonText = (currentStageIndex < moduleData.stages.length - 1) ? "Siguiente Etapa" : "Finalizar Simulación";
+                
+                let quizHtml = `<form class="quiz-form space-y-6 mt-8" id="quiz-form-${moduleId}">`;
+                quiz.forEach((q, index) => {
+                    quizHtml += renderQuestion(q, index, moduleId, moduleData);
+                });
+                quizHtml += `<button type="button" class="submit-quiz-btn w-full sm:w-auto bg-sky-600 text-white font-semibold py-3 px-8 rounded-lg shadow-md transition-all hover:bg-sky-700 active:scale-95" onclick="submitAnswers(${moduleId})">${buttonText}</button></form>`;
+                quizSectionHtml = `<div class="mt-8"><h3 class="text-xl font-bold text-slate-800">Toma de Decisión</h3>${quizHtml}</div>`;
+
+            } else { // Static module
+                clinicalInfoHtml = `<h3 class="text-xl font-bold text-slate-800 mb-3">Caso Clínico</h3><div class="case-study bg-amber-50 border-l-4 border-amber-500 p-5 rounded-r-lg text-amber-900 space-y-2">${moduleData.clinicalCase}</div>`;
+                quiz = moduleData.quiz;
+                buttonText = "Validar Respuestas";
+                let quizHtml = `<form class="quiz-form space-y-6 mt-8" id="quiz-form-${moduleId}">`;
+                quiz.forEach((q, index) => {
+                    quizHtml += renderQuestion(q, index, moduleId, moduleData);
+                });
+                quizHtml += `<button type="button" class="submit-quiz-btn w-full sm:w-auto bg-sky-600 text-white font-semibold py-3 px-8 rounded-lg shadow-md transition-all hover:bg-sky-700 active:scale-95" onclick="submitAnswers(${moduleId})">${buttonText}</button></form>`;
+                quizSectionHtml = `<div class="mt-8"><h3 class="text-xl font-bold text-slate-800">Test de Autoevaluación</h3>${quizHtml}</div>`;
+            }
+
+            displayArea.innerHTML = `
+                <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-xl">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-slate-900">${moduleData.title}</h2>
+                    <div class="mt-6">${clinicalInfoHtml}</div>
+                    ${quizSectionHtml}
+                </div>`;
+            
+            if (quiz) {
+                quiz.forEach((q, index) => {
+                    if (q.type === 'dnd') {
+                        setupDragAndDrop(moduleId, index);
+                    }
+                });
+            }
+        }
+
+        function renderQuestion(q, index, moduleId, moduleData){
+            const questionNumber = moduleData.type === 'evolutive' ? '' : `${index + 1}. `;
+            let questionHtml = `<div class="question-block bg-white p-6 rounded-xl shadow-lg border border-slate-100" id="q-block-${moduleId}-${index}">
+                                <p class="font-semibold text-slate-800 mb-4 text-base sm:text-lg">${questionNumber}${q.question.replace('BLANK', '_____')}</p>`;
+             switch (q.type) {
+                case 'image':
+                    questionHtml += `<div class="mb-4"><img src="${q.imageUrl}" alt="Imagen del caso clínico" class="rounded-lg shadow-md mx-auto"></div>`;
+                case 'mcq':
+                    questionHtml += `<div class="space-y-3">`;
+                    q.options.forEach((opt, optIndex) => {
+                        const optionText = typeof opt === 'string' ? opt : opt.text;
+                        questionHtml += `<label class="flex items-center p-4 border-2 border-slate-200 rounded-lg cursor-pointer transition-all duration-200 hover:bg-sky-50 hover:border-sky-400 has-[:checked]:bg-sky-100 has-[:checked]:border-sky-500 has-[:checked]:ring-2 has-[:checked]:ring-sky-200">
+                                        <input type="radio" name="q${index}" value="${optIndex}" class="h-5 w-5 text-sky-600 border-slate-300 focus:ring-sky-500 focus:ring-2">
+                                        <span class="ml-4 text-slate-700">${optionText}</span>
+                                   </label>`;
+                    });
+                    questionHtml += `</div>`;
+                    break;
+                case 'fib':
+                     questionHtml = questionHtml.replace('_____', `<input type="text" name="q${index}" class="mt-2 block w-full sm:w-1/2 rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm" placeholder="Escribe tu respuesta aquí">`);
+                    break;
+                case 'dnd':
+                    questionHtml += `
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <h4 class="font-semibold text-slate-600 mb-2 text-center">Opciones</h4>
+                                <div id="dnd-source-${index}" class="space-y-2 p-2 rounded-lg bg-slate-100 min-h-[100px]">
+                                    ${q.options.map((opt, i) => `<div id="drag-${moduleId}-${index}-${i}" class="draggable-item bg-white p-3 rounded-lg shadow border border-slate-200" draggable="true">${opt}</div>`).join('')}
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-slate-600 mb-2 text-center">Tu Orden</h4>
+                                <div id="dnd-dropzone-${index}" class="dropzone p-2 rounded-lg space-y-2"></div>
+                            </div>
+                        </div>`;
+                    break;
+            }
+            questionHtml += `</div>`;
+            return questionHtml;
+        }
+        
+        function setupDragAndDrop(moduleId, questionIndex) {
+            const sourceContainer = document.getElementById(`dnd-source-${questionIndex}`);
+            const dropzone = document.getElementById(`dnd-dropzone-${questionIndex}`);
+            if (!sourceContainer || !dropzone) return;
+            const draggables = sourceContainer.querySelectorAll('.draggable-item');
+
+            const allContainers = [sourceContainer, dropzone];
+
+            draggables.forEach(draggable => {
+                draggable.addEventListener('dragstart', () => {
+                    draggable.classList.add('dragging');
+                });
+                draggable.addEventListener('dragend', () => {
+                    draggable.classList.remove('dragging');
+                });
+            });
+
+            allContainers.forEach(container => {
+                container.addEventListener('dragover', e => {
+                    e.preventDefault();
+                    container.classList.add('drag-over');
+                });
+                container.addEventListener('dragleave', () => {
+                    container.classList.remove('drag-over');
+                });
+
+                container.addEventListener('drop', e => {
+                    e.preventDefault();
+                    container.classList.remove('drag-over');
+                    const draggable = document.querySelector('.dragging');
+                    if (draggable) {
+                        container.appendChild(draggable);
+                    }
+                });
+            });
+        }
+
+        function showCompletedModule(moduleId) {
+            const moduleData = courseModules.find(m => m.id === parseInt(moduleId));
+            const progressData = userProgress[moduleId];
+            const displayArea = document.getElementById('module-display');
+            const nextModule = courseModules.find(m => m.id === moduleId + 1);
+
+            let reviewHtml = '';
+            
+            if(moduleData.type === 'evolutive') {
+                reviewHtml += `<h3 class="text-xl font-bold text-slate-800 mt-8">Revisión de la Simulación:</h3>`;
+                moduleData.stages.forEach((stage, stageIndex) => {
+                    const userAnswerForStage = progressData.answers[stageIndex];
+                    
+                    reviewHtml += `<div class="mt-6 pt-6 border-t border-slate-200">`;
+                    reviewHtml += `<h4 class="text-lg font-bold text-slate-700 mb-4">Etapa ${stageIndex + 1}</h4>`;
+
+                    if (stage.clinicalCase) {
+                        reviewHtml += `<div class="case-study bg-amber-50 border-l-4 border-amber-500 p-5 rounded-r-lg text-amber-900 space-y-2 mb-4">${stage.clinicalCase.replace(/\n/g, '<br>')}</div>`;
+                    }
+                    if (stage.update) {
+                        reviewHtml += `<div class="case-study bg-sky-50 border-l-4 border-sky-500 p-5 rounded-r-lg text-sky-900 space-y-2 mb-4"><strong>Actualización:</strong> ${stage.update}</div>`;
+                    }
+
+                    stage.quiz.forEach((q, qIndex) => {
+                        const userAnswerIndex = userAnswerForStage ? userAnswerForStage[qIndex] : undefined;
+                        const isCorrect = userAnswerIndex === q.answer;
+                        const chosenOptionText = (userAnswerIndex !== undefined) ? q.options[userAnswerIndex] : "No respondida";
+                        const correctOptionText = q.options[q.answer];
+
+                        let feedbackHeader = `<p class="text-slate-600">Tu respuesta: <strong class="${isCorrect ? 'text-emerald-600' : 'text-red-600'}">${chosenOptionText}</strong></p>`;
+                        if (!isCorrect && userAnswerIndex !== undefined) {
+                            feedbackHeader += `<p class="mt-1 text-slate-600">Respuesta correcta: <strong class="text-emerald-600">${correctOptionText}</strong></p>`;
+                        }
+
+                        reviewHtml += `<div class="bg-white p-4 rounded-xl shadow-lg border border-slate-100">
+                            <div class="flex justify-between items-start mb-2">
+                                <p class="font-semibold text-slate-800 pr-4">${q.question}</p>
+                                <span class="flex-shrink-0 font-bold py-1 px-3 rounded-full text-sm ${isCorrect ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">
+                                    ${isCorrect ? 'Correcta' : 'Incorrecta'}
+                                </span>
+                            </div>
+                            ${feedbackHeader}
+                            <div class="mt-3 p-3 rounded-lg border-l-4 bg-slate-50 border-slate-400 text-slate-800">
+                                <p><strong class="font-bold">Justificación:</strong> ${q.justification}</p>
+                                <p class="text-sm italic mt-2 opacity-80">Fuente: ${q.source}</p>
+                            </div>
+                        </div>`;
+                    });
+                     reviewHtml += `</div>`;
+                });
+            } else { // Static module review
+                 reviewHtml += `<h3 class="text-xl font-bold text-slate-800 mt-8">Resultados del Test</h3><div class="space-y-8 mt-6">`;
+                 moduleData.quiz.forEach((q, index) => {
+                    const userAnswer = progressData.answers[index];
+                    let isCorrect = false;
+                    let feedbackHtml = '';
+
+                    switch (q.type) {
+                        case 'image':
+                        case 'mcq':
+                            isCorrect = userAnswer === q.answer;
+                            break;
+                        case 'fib':
+                            isCorrect = userAnswer && q.answer && userAnswer.toLowerCase() === q.answer.toLowerCase();
+                            break;
+                        case 'dnd':
+                            isCorrect = JSON.stringify(userAnswer) === JSON.stringify(q.correctOrder);
+                            break;
+                    }
+
+                    feedbackHtml += `<div class="bg-white p-4 rounded-xl shadow-lg border border-slate-100">`;
+                    feedbackHtml += `<div class="flex justify-between items-start mb-2">
+                                        <p class="font-semibold text-slate-800 pr-4">${index + 1}. ${q.question.replace('BLANK', '_____')}</p>
+                                        <span class="flex-shrink-0 font-bold py-1 px-3 rounded-full text-sm ${isCorrect ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">
+                                            ${isCorrect ? 'Correcta' : 'Incorrecta'}
+                                        </span>
+                                     </div>`;
+
+                    switch (q.type) {
+                        case 'image':
+                             feedbackHtml += `<div class="my-4"><img src="${q.imageUrl}" alt="Imagen del caso clínico" class="rounded-lg shadow-md mx-auto"></div>`;
+                        case 'mcq':
+                            feedbackHtml += `<div class="space-y-3">`;
+                            q.options.forEach((opt, optIndex) => {
+                                const isUserAnswer = optIndex === userAnswer;
+                                const isCorrectAnswer = optIndex === q.answer;
+                                let labelClasses = 'flex items-center justify-between p-4 border-2 rounded-lg';
+                                let icon = '';
+
+                                if (isCorrectAnswer) {
+                                    labelClasses += ' bg-emerald-50 border-emerald-500';
+                                    if (isUserAnswer) icon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-emerald-600" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>`;
+                                } else if (isUserAnswer) {
+                                    labelClasses += ' bg-red-50 border-red-500';
+                                    icon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-600" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" /></svg>`;
+                                } else {
+                                    labelClasses += ' border-slate-200 bg-slate-50 opacity-80';
+                                }
+                                feedbackHtml += `<div class="${labelClasses}"><span class="text-slate-700">${opt}</span>${icon}</div>`;
+                            });
+                            feedbackHtml += `</div>`;
+                            break;
+                        case 'fib':
+                            feedbackHtml += `<p class="text-slate-600">Tu respuesta: <strong class="${isCorrect ? 'text-emerald-600' : 'text-red-600'}">${userAnswer || 'No respondida'}</strong></p>`;
+                            if (!isCorrect) {
+                                feedbackHtml += `<p class="mt-1 text-slate-600">Respuesta correcta: <strong class="text-emerald-600">${q.answer}</strong></p>`;
+                            }
+                            break;
+                        case 'dnd':
+                            feedbackHtml += `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div>
+                                                    <h4 class="font-semibold mb-2 text-center ${isCorrect ? 'text-emerald-700' : 'text-red-700'}">Tu Orden</h4>
+                                                    <div class="space-y-2 p-2 rounded-lg ${isCorrect ? 'bg-emerald-50 border-2 border-emerald-300' : 'bg-red-50 border-2 border-red-300'}">
+                                                        ${(userAnswer || []).map(opt => `<div class="bg-white p-3 rounded-lg shadow-sm border">${opt}</div>`).join('')}
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <h4 class="font-semibold text-slate-600 mb-2 text-center">Orden Correcto</h4>
+                                                    <div class="space-y-2 p-2 rounded-lg bg-slate-100">
+                                                        ${q.correctOrder.map(opt => `<div class="bg-white p-3 rounded-lg shadow-sm border">${opt}</div>`).join('')}
+                                                    </div>
+                                                </div>
+                                             </div>`;
+                            break;
+                    }
+                    feedbackHtml += `<div class="mt-3 p-3 rounded-lg border-l-4 bg-slate-50 border-slate-400 text-slate-800">
+                                        <p><strong class="font-bold">Justificación:</strong> ${q.justification}</p>
+                                        <p class="text-sm italic mt-2 opacity-80">Fuente: ${q.source}</p>
+                                     </div>`;
+                    feedbackHtml += `</div>`;
+                    reviewHtml += feedbackHtml;
+                 });
+                 reviewHtml += `</div>`;
+            }
+
+            let nextModuleButton = '';
+            if (nextModule) {
+                nextModuleButton = `<button class="mt-10 w-full sm:w-auto bg-sky-600 text-white font-semibold py-3 px-8 rounded-lg shadow-md transition-all hover:bg-sky-700 active:scale-95 text-lg" onclick="displayModule(${nextModule.id})">
+                    Continuar al Módulo ${nextModule.id}
+                </button>`;
+            } else {
+                 nextModuleButton = `<p class="mt-10 font-semibold text-emerald-600">¡Felicidades, has completado todos los módulos!</p>`;
+            }
+
+            displayArea.innerHTML = `
+                <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-xl">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-slate-900">${moduleData.title} (Revisión)</h2>
+                    <div class="module-summary mt-6 bg-sky-50 border-l-4 border-sky-500 p-5 rounded-r-lg text-sky-900">
+                        <h3 class="font-bold text-lg mb-2">Resumen del Módulo</h3>
+                        <p>${moduleData.summary}</p>
+                    </div>
+                    ${reviewHtml}
+                    <div class="text-center">
+                        ${nextModuleButton}
+                    </div>
+                </div>`;
+        }
+        
+        function finishModule(moduleId) {
+            const progressData = userProgress[moduleId];
+            progressData.completed = true;
+            saveProgress();
+            updateProgressBar();
+            renderModuleList();
+            showCompletedModule(moduleId);
+            checkCourseCompletion();
+        }
+
+        function submitAnswers(moduleId) {
+            const moduleData = courseModules.find(m => m.id === moduleId);
+            const progressData = userProgress[moduleId];
+            const form = document.getElementById('quiz-form-' + moduleId);
+
+            if (moduleData.type === 'evolutive') {
+                const currentStageIndex = progressData.currentStage || 0;
+                const currentStage = moduleData.stages[currentStageIndex];
+                
+                if(!progressData.answers[currentStageIndex]) progressData.answers[currentStageIndex] = {};
+                
+                let allAnswered = true;
+
+                currentStage.quiz.forEach((q, qIndex) => {
+                    const selectedOption = form.querySelector(`input[name="q${qIndex}"]:checked`);
+                    if(selectedOption) {
+                        const answerIndex = parseInt(selectedOption.value);
+                        progressData.answers[currentStageIndex][qIndex] = answerIndex;
+                        if(answerIndex === q.answer) {
+                            progressData.score++;
+                        }
+                    } else {
+                        allAnswered = false;
+                    }
+                });
+
+                if(!allAnswered) {
+                    alert("Por favor, selecciona una opción para continuar.");
+                    return;
+                }
+                
+                if (currentStageIndex < moduleData.stages.length - 1) {
+                    progressData.currentStage++;
+                    saveProgress();
+                    displayModule(moduleId); 
+                } else {
+                    finishModule(moduleId);
+                }
+
+            } else { // Static module
+                let allStaticAnswered = true;
+                moduleData.quiz.forEach((q, index) => {
+                    let answer;
+                     switch (q.type) {
+                        case 'image': case 'mcq':
+                            const selectedOption = form.querySelector(`input[name="q${index}"]:checked`);
+                            answer = selectedOption ? parseInt(selectedOption.value) : null;
+                            if (answer === q.answer) progressData.score++;
+                            if(answer === null) allStaticAnswered = false;
+                            break;
+                        case 'fib':
+                            const input = form.querySelector(`input[name="q${index}"]`);
+                            answer = input.value.trim();
+                            if (answer.toLowerCase() === q.answer.toLowerCase()) progressData.score++;
+                            if(answer === '') allStaticAnswered = false;
+                            break;
+                        case 'dnd':
+                            const dropzone = document.getElementById(`dnd-dropzone-${index}`);
+                            answer = Array.from(dropzone.children).map(item => item.textContent);
+                            if (JSON.stringify(answer) === JSON.stringify(q.correctOrder)) progressData.score++;
+                            if(answer.length === 0) allStaticAnswered = false;
+                            break;
+                    }
+                    progressData.answers[index] = answer;
+                });
+                
+                if(!allStaticAnswered) {
+                    alert("Por favor, responde todas las preguntas antes de validar.");
+                    return;
+                }
+
+                progressData.completed = true;
+                saveProgress();
+                updateProgressBar();
+                renderModuleList();
+                showCompletedModule(moduleId);
+                checkCourseCompletion();
+            }
+        }
+
+        function updateProgressBar() {
+            const completedModules = Object.values(userProgress).filter(p => p && p.completed).length;
+            const totalModules = courseModules.length;
+            const percentage = totalModules > 0 ? (completedModules / totalModules) * 100 : 0;
+            
+            const progressBar = document.getElementById('progress-bar');
+            progressBar.style.width = percentage + '%';
+            progressBar.textContent = Math.round(percentage) + '%';
+        }
+
+        function checkCourseCompletion() {
+            const completedModules = Object.values(userProgress).filter(p => p && p.completed).length;
+            if (completedModules === courseModules.length) {
+                setTimeout(calculateFinalScore, 2000);
+            }
+        }
+
+        function calculateFinalScore() {
+            let totalScore = 0;
+            let totalQuestions = 0;
+            
+            courseModules.forEach(module => {
+                if(userProgress[module.id] && userProgress[module.id].completed) {
+                    totalScore += userProgress[module.id].score;
+                    if (module.type === 'evolutive') {
+                         module.stages.forEach(stage => {
+                             if(stage.quiz) totalQuestions += stage.quiz.length;
+                         });
+                    } else {
+                        totalQuestions += module.quiz.length;
+                    }
+                }
+            });
+            
+            const finalPercentage = totalQuestions > 0 ? (totalScore / totalQuestions) * 100 : 0;
+            
+            const displayArea = document.getElementById('module-display');
+            displayArea.innerHTML = `
+                <div id="final-score-screen" class="text-center bg-white p-8 sm:p-12 rounded-2xl shadow-xl transform transition-all duration-500 scale-100 opacity-100">
+                    <h2 class="text-3xl sm:text-4xl font-bold text-sky-600">¡Curso Completado!</h2>
+                    <p class="text-slate-600 mt-2">Has finalizado todos los módulos de preparación para el ATLS.</p>
+                    <p class="mt-6 text-slate-700">Tu calificación final es:</p>
+                    <p id="score-value" class="text-5xl sm:text-7xl font-bold text-slate-800 mt-2">${Math.round(finalPercentage)}<span class="text-3xl text-slate-500"> / 100</span></p>
+                </div>`;
+        }
+    </script>
+</body>
+</html>
+
